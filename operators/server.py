@@ -153,6 +153,11 @@ class BLT_Server(bpy.types.Operator):
   bl_idname = "blt.server"
   bl_label = "启动 BLT 服务器"
 
+  # 新建客户端
+  @classmethod
+  def new_client(cls, _, server):
+    server.send_message_to_all("Geterver")
+
   # 发送消息
   @classmethod
   def sendmsg(cls, msg):
@@ -217,8 +222,7 @@ class BLT_Server(bpy.types.Operator):
   def startServer(cls):
     try:
       server = WebsocketServer(BLT_Info.server_port, BLT_Info.server_ip)
-      server.set_fn_new_client(
-          lambda _, server: server.send_message_to_all("GetServer"))
+      server.set_fn_new_client(cls.new_client)
       server.set_fn_message_received(cls.message_received)
       server.run_forever()
     except Exception as e:
